@@ -22,8 +22,6 @@ public class SocialTriangle extends Configured implements Tool {
 	private static final Logger logger = LogManager.getLogger(SocialTriangle.class);
 
 	public enum RESULT_COUNTER {
-//		ACount,
-//		BCount,
 		finalCount
 	}
 
@@ -91,8 +89,6 @@ public class SocialTriangle extends Configured implements Tool {
 				outkey.set(end + "," + start);
 				outvalue.set("a");
 
-				System.out.println("key in pathlength2 mapper: "+outkey);
-
 				context.write(outkey,outvalue);
 
 			}
@@ -119,8 +115,6 @@ public class SocialTriangle extends Configured implements Tool {
 
 				outkey.set(from + "," + to);
 				outvalue.set("b");
-
-				System.out.println("key in close triangle mapper: "+outkey);
 
 				context.write(outkey,outvalue);
 
@@ -156,9 +150,6 @@ public class SocialTriangle extends Configured implements Tool {
 				}
 			}
 
-			logger.info("key: " + key + " has FollowedByList:" + FollowedByList);
-			logger.info("key: " + key + " has FollowingList:" + FollowingList);
-
 			// Execute our join logic now that the lists are filled
 			executeJoinLogic(key, context);
 		}
@@ -193,13 +184,20 @@ public class SocialTriangle extends Configured implements Tool {
 			for (Text t : values) {
 
 				if (t.charAt(0) == 'a') {
+
+					//increment the counter for path-2 lengths
 					ACounter++;
 				} else if (t.charAt(0) == 'b') {
+
+					//increment the counter for closing-edges
 					BCounter++;
 				}
 			}
 
+			//Number of path-2 length times the number of closing-edges will be our result
 			result = ACounter * BCounter;
+
+			//set the final count globally
 			context.getCounter(RESULT_COUNTER.finalCount).increment(result);
 		}
 	}
@@ -257,6 +255,7 @@ public class SocialTriangle extends Configured implements Tool {
 		Counters counters = job2.getCounters();
 		Counter c1 = counters.findCounter(RESULT_COUNTER.finalCount);
 
+		//divide by three since (X,Y,Z),(Y,Z,X) and (Z,X,Y) will all be counted individually
 		System.out.println("FINAL COUNT: "+c1.getValue() / 3);
 
 		return val ? 1 : 0;
