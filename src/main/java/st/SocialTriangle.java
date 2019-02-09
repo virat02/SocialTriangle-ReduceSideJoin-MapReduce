@@ -8,18 +8,24 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 public class SocialTriangle extends Configured implements Tool {
 	private static final Logger logger = LogManager.getLogger(SocialTriangle.class);
+
+	public enum RESULT_COUNTER {
+//		ACount,
+//		BCount,
+		finalCount
+	}
 
 	public static class TokenizerMapper extends Mapper<Object, Text, Text, Text> {
 		private Text outkey1 = new Text();
@@ -52,11 +58,6 @@ public class SocialTriangle extends Configured implements Tool {
 				//THis indicates userId1 follows userId2
 				outvalue2.set("r " + temp2);
 
-//				logger.info("outkey1:" + outkey1);
-//				logger.info("outvallue1:" + outvalue1);
-//				logger.info("outkey2:" + outkey2);
-//				logger.info("outvallue2:" + outvalue2);
-
 				//on the LHS
 				context.write(outkey1,outvalue1);
 
@@ -68,7 +69,66 @@ public class SocialTriangle extends Configured implements Tool {
 		}
 	}
 
-	public static class IntSumReducer extends Reducer<Text, Text, Text, Text> {
+	public static class PathLength2Mapper extends Mapper<Object, Text, Text, Text> {
+		private Text outkey = new Text();
+		private Text outvalue = new Text();
+
+		@Override
+		public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException {
+
+			//split on comma, based on the input file format
+			final StringTokenizer itr = new StringTokenizer(value.toString(),",");
+
+			String start;
+			String end;
+
+			while (itr.hasMoreTokens()) {
+
+				start = itr.nextToken();
+				itr.nextToken();
+				end = itr.nextToken();
+
+				outkey.set(end + "," + start);
+				outvalue.set("a");
+
+				System.out.println("key in pathlength2 mapper: "+outkey);
+
+				context.write(outkey,outvalue);
+
+			}
+		}
+	}
+
+	public static class CloseTriangleMapper extends Mapper<Object, Text, Text, Text> {
+		private Text outkey = new Text();
+		private Text outvalue = new Text();
+
+		@Override
+		public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException {
+
+			//split on comma, based on the input file format
+			final StringTokenizer itr = new StringTokenizer(value.toString(),",");
+
+			String from;
+			String to;
+
+			while (itr.hasMoreTokens()) {
+
+				from = itr.nextToken();
+				to = itr.nextToken();
+
+				outkey.set(from + "," + to);
+				outvalue.set("b");
+
+				System.out.println("key in close triangle mapper: "+outkey);
+
+				context.write(outkey,outvalue);
+
+			}
+		}
+	}
+
+	public static class PathLength2Reducer extends Reducer<Text, Text, Text, Text> {
 
 		private ArrayList<Text> FollowedByList = new ArrayList<>();
 		private ArrayList<Text> FollowingList = new ArrayList<>();
@@ -110,7 +170,7 @@ public class SocialTriangle extends Configured implements Tool {
 			if (!FollowedByList.isEmpty() && !FollowingList.isEmpty()) {
 				for (Text X : FollowedByList) {
 					for (Text Z : FollowingList) {
-						Y.set(key + "-->" + Z);
+						Y.set(key + "," + Z);
 						context.write(X, Y);
 					}
 				}
@@ -118,32 +178,94 @@ public class SocialTriangle extends Configured implements Tool {
 		}
 	}
 
+	public static class CLoseTriangleReducer extends Reducer<Text, Text, Text, Text> {
+
+		@Override
+		public void reduce(final Text key, final Iterable<Text> values, final Context context) throws IOException, InterruptedException {
+
+			int result;
+			int ACounter = 0;
+			int BCounter = 0;
+
+			// iterate through all our values, binning each record based on what
+			// it was tagged with
+			// make sure to remove the tag!
+			for (Text t : values) {
+
+				if (t.charAt(0) == 'a') {
+					ACounter++;
+				} else if (t.charAt(0) == 'b') {
+					BCounter++;
+				}
+			}
+
+			result = ACounter * BCounter;
+			context.getCounter(RESULT_COUNTER.finalCount).increment(result);
+		}
+	}
+
 	@Override
 	public int run(final String[] args) throws Exception {
-		final Configuration conf = getConf();
-		final Job job = Job.getInstance(conf, "Social Triangle");
-		job.setJarByClass(SocialTriangle.class);
-		final Configuration jobConf = job.getConfiguration();
-		jobConf.set("mapreduce.output.textoutputformat.separator", "-->");
-		// Delete output directory, only to ease local development; will not work on AWS. ===========
-//		final FileSystem fileSystem = FileSystem.get(conf);
-//		if (fileSystem.exists(new Path(args[1]))) {
-//			fileSystem.delete(new Path(args[1]), true);
-//		}
-		// ================
-		job.setMapperClass(TokenizerMapper.class);
-		//job.setCombinerClass(IntSumReducer.class);
-		job.setReducerClass(IntSumReducer.class);
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(Text.class);
-		FileInputFormat.addInputPath(job, new Path(args[0]));
-		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		return job.waitForCompletion(true) ? 0 : 1;
+
+		boolean val;
+
+		final Configuration conf1 = getConf();
+		final Configuration conf2 = getConf();
+
+		final Job job1 = Job.getInstance(conf1, "Social Triangle");
+		final Job job2 = Job.getInstance(conf2, "Count Social Triangle");
+
+		job1.setJarByClass(SocialTriangle.class);
+		job2.setJarByClass(SocialTriangle.class);
+
+		final Configuration jobConf1 = job1.getConfiguration();
+		final Configuration jobConf2 = job2.getConfiguration();
+
+		jobConf1.set("mapreduce.output.textoutputformat.separator", ",");
+		jobConf2.set("mapreduce.output.textoutputformat.separator", "");
+
+		//job 1
+		job1.setMapperClass(TokenizerMapper.class);
+		job1.setReducerClass(PathLength2Reducer.class);
+
+		job1.setOutputKeyClass(Text.class);
+		job1.setOutputValueClass(Text.class);
+
+		FileInputFormat.addInputPath(job1, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job1, new Path(args[1]));
+
+		job1.waitForCompletion(true);
+		
+		//job 2
+		job2.setMapperClass(PathLength2Mapper.class);
+		job2.setMapperClass(CloseTriangleMapper.class);
+		job2.setReducerClass(CLoseTriangleReducer.class);
+
+		job2.setOutputKeyClass(Text.class);
+		job2.setOutputValueClass(Text.class);
+
+		MultipleInputs.addInputPath(job2, new Path(args[1]),
+				TextInputFormat.class, PathLength2Mapper.class);
+
+		MultipleInputs.addInputPath(job2, new Path(args[0]),
+				TextInputFormat.class, CloseTriangleMapper.class);
+
+		FileOutputFormat.setOutputPath(job2, new Path(args[2]));
+
+		val = job2.waitForCompletion(true);
+
+		Counters counters = job2.getCounters();
+		Counter c1 = counters.findCounter(RESULT_COUNTER.finalCount);
+
+		System.out.println("FINAL COUNT: "+c1.getValue() / 3);
+
+		return val ? 1 : 0;
+
 	}
 
 	public static void main(final String[] args) {
-		if (args.length != 2) {
-			throw new Error("Two arguments required:\n<input-dir> <output-dir>");
+		if (args.length != 3) {
+			throw new Error("Two arguments required:\n<input-dir> <output1-dir> <output2-dir>");
 		}
 
 		try {

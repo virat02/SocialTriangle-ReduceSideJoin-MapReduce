@@ -1,3 +1,7 @@
-st/SocialTriangle$TokenizerMapper.class
-st/SocialTriangle$IntSumReducer.class
+st/SocialTriangle$PathLength2Mapper.class
 st/SocialTriangle.class
+st/SocialTriangle$CloseTriangleMapper.class
+st/SocialTriangle$RESULT_COUNTER.class
+st/SocialTriangle$TokenizerMapper.class
+st/SocialTriangle$PathLength2Reducer.class
+st/SocialTriangle$CLoseTriangleReducer.class

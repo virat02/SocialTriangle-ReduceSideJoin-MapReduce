@@ -8,6 +8,8 @@ jar.path=target/${jar.name}
 job.name=st.SocialTriangle
 local.input=input
 local.output=output
+local.output1 = output1
+
 # Pseudo-Cluster Execution
 hdfs.user.name=virat
 hdfs.input=input
@@ -36,7 +38,7 @@ clean-local-output:
 # Make sure Hadoop  is set up (in /etc/hadoop files) for standalone operation (not pseudo-cluster).
 # https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/SingleCluster.html#Standalone_Operation
 local: jar clean-local-output
-	${hadoop.root}/bin/hadoop jar ${jar.path} ${job.name} ${local.input} ${local.output}
+	${hadoop.root}/bin/hadoop jar ${jar.path} ${job.name} ${local.input} ${local.output} ${local.output1}
 
 # Start HDFS
 start-hdfs:
