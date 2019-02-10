@@ -19,13 +19,19 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 public class SocialTriangle extends Configured implements Tool {
+
 	private static final Logger logger = LogManager.getLogger(SocialTriangle.class);
 
+	//Global counters
 	public enum RESULT_COUNTER {
-		finalCount
+		finalCount,
+		CountStatistics
 	}
 
-	public static class TokenizerMapper extends Mapper<Object, Text, Text, Text> {
+	public static class EdgesMapper extends Mapper<Object, Text, Text, Text> {
+
+		int MAX = 50000;
+
 		private Text outkey1 = new Text();
 		private Text outvalue1 = new Text();
 		private Text outkey2 = new Text();
@@ -33,6 +39,9 @@ public class SocialTriangle extends Configured implements Tool {
 
 		@Override
 		public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException {
+
+			boolean flag1 = false;
+			boolean flag2 = false;
 
 			//split on comma, based on the input file format
 			final StringTokenizer itr = new StringTokenizer(value.toString(),",");
@@ -43,26 +52,39 @@ public class SocialTriangle extends Configured implements Tool {
 			while (itr.hasMoreTokens()) {
 
 				temp1 = itr.nextToken();
-				outkey2.set(temp1);
 
-				//set the tag as "l" for indicating the LHS
-				//This indicates userId2 followed by userId1
-				outvalue1.set("l " + temp1);
+				if (Integer.parseInt(temp1) <= MAX) {
+
+					flag1 = true;
+
+					outkey2.set(temp1);
+
+					//set the tag as "l" for indicating the LHS
+					//This indicates userId2 followed by userId1
+					outvalue1.set("l " + temp1);
+				}
 
 				temp2 = itr.nextToken();
-				outkey1.set(temp2);
 
-				//set the tag as "r" meaning indicating the RHS
-				//THis indicates userId1 follows userId2
-				outvalue2.set("r " + temp2);
+				if (Integer.parseInt(temp2) <= MAX) {
 
-				//on the LHS
-				context.write(outkey1,outvalue1);
+					flag2 = true;
 
-				//on the RHS
-				context.write(outkey2, outvalue2);
+					outkey1.set(temp2);
 
+					//set the tag as "r" meaning indicating the RHS
+					//THis indicates userId1 follows userId2
+					outvalue2.set("r " + temp2);
+				}
 
+				if (flag1 && flag2) {
+
+					//on the LHS
+					context.write(outkey1, outvalue1);
+
+					//on the RHS
+					context.write(outkey2, outvalue2);
+				}
 			}
 		}
 	}
@@ -86,6 +108,7 @@ public class SocialTriangle extends Configured implements Tool {
 				itr.nextToken();
 				end = itr.nextToken();
 
+				//set flag as "a" to indicate data coming from this mapper
 				outkey.set(end + "," + start);
 				outvalue.set("a");
 
@@ -113,6 +136,7 @@ public class SocialTriangle extends Configured implements Tool {
 				from = itr.nextToken();
 				to = itr.nextToken();
 
+				//set flag as "b" to indicate data coming from this mapper
 				outkey.set(from + "," + to);
 				outvalue.set("b");
 
@@ -129,6 +153,8 @@ public class SocialTriangle extends Configured implements Tool {
 
 		private Text Y = new Text();
 
+		int counter1 = 0;
+
 		@Override
 		public void reduce(final Text key, final Iterable<Text> values, final Context context) throws IOException, InterruptedException {
 
@@ -136,12 +162,12 @@ public class SocialTriangle extends Configured implements Tool {
 			FollowedByList.clear();
 			FollowingList.clear();
 
+			//counter1 = 0;
+
 			// iterate through all our values, binning each record based on what
 			// it was tagged with
 			// make sure to remove the tag!
 			for (Text t : values) {
-
-				logger.info("value: " +t);
 
 				if (t.charAt(0) == 'l') {
 					FollowedByList.add(new Text(t.toString().substring(2)));
@@ -150,6 +176,9 @@ public class SocialTriangle extends Configured implements Tool {
 				}
 			}
 
+			counter1 = FollowedByList.size() * FollowingList.size();
+			context.getCounter(RESULT_COUNTER.CountStatistics).increment(counter1);
+
 			// Execute our join logic now that the lists are filled
 			executeJoinLogic(key, context);
 		}
@@ -157,12 +186,15 @@ public class SocialTriangle extends Configured implements Tool {
 		private void executeJoinLogic(final Text key, Context context) throws IOException,
 				InterruptedException {
 
+			int counter = 0;
+
 			// If both lists are not empty, join FollowedByList with FollowingList
 			if (!FollowedByList.isEmpty() && !FollowingList.isEmpty()) {
 				for (Text X : FollowedByList) {
 					for (Text Z : FollowingList) {
 						Y.set(key + "," + Z);
 						context.write(X, Y);
+						counter++;
 					}
 				}
 			}
@@ -219,44 +251,63 @@ public class SocialTriangle extends Configured implements Tool {
 		final Configuration jobConf1 = job1.getConfiguration();
 		final Configuration jobConf2 = job2.getConfiguration();
 
-		jobConf1.set("mapreduce.output.textoutputformat.separator", ",");
-		jobConf2.set("mapreduce.output.textoutputformat.separator", "");
-
 		//job 1
-		job1.setMapperClass(TokenizerMapper.class);
+
+		jobConf1.set("mapreduce.output.textoutputformat.separator", ",");
+
+		//Set the sequential flow of job1
+		job1.setMapperClass(EdgesMapper.class);
 		job1.setReducerClass(PathLength2Reducer.class);
 
+		//Set the output key and value types for job1
 		job1.setOutputKeyClass(Text.class);
 		job1.setOutputValueClass(Text.class);
 
+		//Add input path to mapper in job1
 		FileInputFormat.addInputPath(job1, new Path(args[0]));
+
+		//Set the output path for job1
 		FileOutputFormat.setOutputPath(job1, new Path(args[1]));
 
 		job1.waitForCompletion(true);
+
+		//Get the count statistics using global counter
+		Counters counters1 = job1.getCounters();
+		Counter c1 = counters1.findCounter(RESULT_COUNTER.CountStatistics);
+
+		logger.info("COUNT STATISTICS: " + c1.getValue());
 		
 		//job 2
+
+		jobConf2.set("mapreduce.output.textoutputformat.separator", "");
+
+		//Set the sequential flow of job2
 		job2.setMapperClass(PathLength2Mapper.class);
 		job2.setMapperClass(CloseTriangleMapper.class);
 		job2.setReducerClass(CLoseTriangleReducer.class);
 
+		//Set the output key and value types for job2
 		job2.setOutputKeyClass(Text.class);
 		job2.setOutputValueClass(Text.class);
 
+		//Add input paths to each mapper in job2
 		MultipleInputs.addInputPath(job2, new Path(args[1]),
 				TextInputFormat.class, PathLength2Mapper.class);
 
 		MultipleInputs.addInputPath(job2, new Path(args[0]),
 				TextInputFormat.class, CloseTriangleMapper.class);
 
+		//Set the output path for job2
 		FileOutputFormat.setOutputPath(job2, new Path(args[2]));
 
 		val = job2.waitForCompletion(true);
 
-		Counters counters = job2.getCounters();
-		Counter c1 = counters.findCounter(RESULT_COUNTER.finalCount);
+		//output the total triangles using global counter
+		Counters counters2 = job2.getCounters();
+		Counter c2 = counters2.findCounter(RESULT_COUNTER.finalCount);
 
 		//divide by three since (X,Y,Z),(Y,Z,X) and (Z,X,Y) will all be counted individually
-		System.out.println("FINAL COUNT: "+c1.getValue() / 3);
+		logger.info("FINAL COUNT: "+c2.getValue() / 3);
 
 		return val ? 1 : 0;
 
@@ -264,7 +315,7 @@ public class SocialTriangle extends Configured implements Tool {
 
 	public static void main(final String[] args) {
 		if (args.length != 3) {
-			throw new Error("Two arguments required:\n<input-dir> <output1-dir> <output2-dir>");
+			throw new Error("Three arguments required:\n<input-dir> <output1-dir> <output2-dir>");
 		}
 
 		try {

@@ -2,7 +2,27 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="943d2946-0dc0-4c0d-aa89-cb06188bc498" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/edges1.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/._SUCCESS.crc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/.part-r-00000.crc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/_SUCCESS" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/part-r-00000" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output1/._SUCCESS.crc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output1/.part-r-00000.crc" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/st/SocialTriangle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/st/SocialTriangle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/st/SocialTriangle$CLoseTriangleReducer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/st/SocialTriangle$CLoseTriangleReducer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/st/SocialTriangle$CloseTriangleMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/st/SocialTriangle$CloseTriangleMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/st/SocialTriangle$PathLength2Mapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/st/SocialTriangle$PathLength2Mapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/st/SocialTriangle$PathLength2Reducer.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/st/SocialTriangle$PathLength2Reducer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/st/SocialTriangle$RESULT_COUNTER.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/st/SocialTriangle$RESULT_COUNTER.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/st/SocialTriangle$TokenizerMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/st/SocialTriangle$TokenizerMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/st/SocialTriangle.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/st/SocialTriangle.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/mr-hw2-1.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/mr-hw2-1.0.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/original-mr-hw2-1.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/original-mr-hw2-1.0.jar" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,8 +36,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/st/SocialTriangle.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="290">
-              <caret line="84" column="40" lean-forward="true" selection-start-line="84" selection-start-column="40" selection-end-line="84" selection-end-column="40" />
+            <state relative-caret-position="-990">
+              <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -25,25 +45,13 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/output/part-r-00000">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="12" column="5" lean-forward="true" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/input/edges1.csv">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="14" column="3" selection-start-line="14" selection-start-column="3" selection-end-line="14" selection-end-column="3" />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>468,</find>
+      <find>41,</find>
+    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -70,7 +78,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -81,17 +88,7 @@
             <path>
               <item name="mr-hw2" type="b2602c69:ProjectViewProjectNode" />
               <item name="SocialTriangle" type="462c0819:PsiDirectoryNode" />
-              <item name="input" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="mr-hw2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SocialTriangle" type="462c0819:PsiDirectoryNode" />
               <item name="output" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="mr-hw2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SocialTriangle" type="462c0819:PsiDirectoryNode" />
-              <item name="output1" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="mr-hw2" type="b2602c69:ProjectViewProjectNode" />
@@ -124,12 +121,13 @@
         </subPane>
       </pane>
       <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1549692135959" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1549727132225" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -162,18 +160,21 @@
       <workItem from="1549663253091" duration="3180000" />
       <workItem from="1549667044879" duration="6142000" />
       <workItem from="1549674962317" duration="4965000" />
-      <workItem from="1549690467574" duration="1667000" />
+      <workItem from="1549690467574" duration="2127000" />
+      <workItem from="1549723487555" duration="3437000" />
+      <workItem from="1549732834186" duration="1548000" />
+      <workItem from="1549813694561" duration="58000" />
+      <workItem from="1549813915997" duration="690000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="22467000" />
+    <option name="totallyTimeSpent" value="28660000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
-    <editor active="true" />
+    <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.26755112" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.28081813" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -227,27 +228,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/input/edges1.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="3" selection-start-line="14" selection-start-column="3" selection-end-line="14" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/output1/part-r-00000">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/output/part-r-00000">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="5" lean-forward="true" selection-start-line="12" selection-start-column="5" selection-end-line="12" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/output1/part-r-00000" />
+    <entry file="file://$PROJECT_DIR$/input/edges1.csv" />
+    <entry file="file://$PROJECT_DIR$/input/edges.csv" />
+    <entry file="file://$PROJECT_DIR$/output/part-r-00000" />
     <entry file="file://$PROJECT_DIR$/src/main/java/st/SocialTriangle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="290">
-          <caret line="84" column="40" lean-forward="true" selection-start-line="84" selection-start-column="40" selection-end-line="84" selection-end-column="40" />
+        <state relative-caret-position="-990">
+          <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

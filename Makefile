@@ -14,15 +14,18 @@ local.output1 = output1
 hdfs.user.name=virat
 hdfs.input=input
 hdfs.output=output
+hdfs.output1 = output1
+
 # AWS EMR Execution
-aws.emr.release=emr-5.17.0
+aws.emr.release=emr-5.20.0
 aws.region=us-east-1
 aws.bucket.name=virat-mr-hw2
 aws.subnet.id=subnet-8ca9c4a2
 aws.input=input
 aws.output=output
+aws.output1=output1
 aws.log.dir=log
-aws.num.nodes=4
+aws.num.nodes=10
 aws.instance.type=m4.large
 # -----------------------------------------------------------
 
@@ -90,7 +93,7 @@ pseudo: jar stop-yarn format-hdfs init-hdfs upload-input-hdfs start-yarn clean-l
 
 # Runs pseudo-clustered (quickie).
 pseudoq: jar clean-local-output clean-hdfs-output 
-	${hadoop.root}/bin/hadoop jar ${jar.path} ${job.name} ${hdfs.input} ${hdfs.output}
+	${hadoop.root}/bin/hadoop jar ${jar.path} ${job.name} ${hdfs.input} ${hdfs.output} ${hdfs.output1}
 	make download-output-hdfs
 
 # Create S3 bucket.
@@ -112,11 +115,11 @@ upload-app-aws:
 # Main EMR launch.
 aws: jar upload-app-aws delete-output-aws
 	aws emr create-cluster \
-		--name "WordCount MR Cluster" \
+		--name "Social Traingle HW2(MAX=50000, 11 nodes)" \
 		--release-label ${aws.emr.release} \
 		--instance-groups '[{"InstanceCount":${aws.num.nodes},"InstanceGroupType":"CORE","InstanceType":"${aws.instance.type}"},{"InstanceCount":1,"InstanceGroupType":"MASTER","InstanceType":"${aws.instance.type}"}]' \
 	    --applications Name=Hadoop \
-	    --steps '[{"Args":["${job.name}","s3://${aws.bucket.name}/${aws.input}","s3://${aws.bucket.name}/${aws.output}"],"Type":"CUSTOM_JAR","Jar":"s3://${aws.bucket.name}/${jar.name}","ActionOnFailure":"TERMINATE_CLUSTER","Name":"Custom JAR"}]' \
+	    --steps '[{"Args":["${job.name}","s3://${aws.bucket.name}/${aws.input}","s3://${aws.bucket.name}/${aws.output}","s3://${aws.bucket.name}/${aws.output1}"],"Type":"CUSTOM_JAR","Jar":"s3://${aws.bucket.name}/${jar.name}","ActionOnFailure":"TERMINATE_CLUSTER","Name":"Custom JAR"}]' \
 		--log-uri s3://${aws.bucket.name}/${aws.log.dir} \
 		--use-default-roles \
 		--enable-debugging \
@@ -126,6 +129,7 @@ aws: jar upload-app-aws delete-output-aws
 download-output-aws: clean-local-output
 	mkdir ${local.output}
 	aws s3 sync s3://${aws.bucket.name}/${aws.output} ${local.output}
+	aws s3 sync s3://${aws.bucket.name}/${aws.output1} ${local.output1}
 
 # Change to standalone mode.
 switch-standalone:
